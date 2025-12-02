@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>동양 운세 - Oriental Fortune</title>
+    <!-- Tailwind CSS (스타일링) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 아이콘 (Lucide React와 호환되는 스타일) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 폰트: 명조체 느낌의 Noto Serif KR -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Noto Serif KR', serif;
+            background-color: #f0f4f8;
+            /* 신비로운 배경 그라데이션 */
+            background-image: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* 스크롤바 숨기기 */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* 탭 전환 애니메이션 */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 앱 컨테이너 (모바일 화면 비율 유지) -->
+    <div class="relative w-full max-w-md h-[850px] bg-white/90 shadow-2xl rounded-[30px] overflow-hidden flex flex-col border border-white/50">
+        
+        <!-- 1. 헤더 & 검색 기능 -->
+        <header class="bg-gradient-to-r from-teal-500 to-emerald-600 text-white p-6 pb-8 rounded-b-[30px] shadow-lg z-10">
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="text-2xl font-bold tracking-widest"><i class="fas fa-yin-yang mr-2"></i>동양 운세</h1>
+                <button class="text-white/80 hover:text-white transition"><i class="fas fa-bell"></i></button>
+            </div>
+            
+            <!-- 검색창 (요청 기능) -->
+            <div class="relative">
+                <input type="text" placeholder="궁금한 운세 키워드 검색 (예: 재물, 연애)" 
+                       class="w-full py-3 px-5 pr-12 rounded-full bg-white/20 border border-white/30 text-white placeholder-white/70 focus:outline-none focus:bg-white/30 transition backdrop-blur-sm">
+                <button class="absolute right-4 top-3 text-white/80"><i class="fas fa-search"></i></button>
+            </div>
+        </header>
+
+        <!-- 메인 콘텐츠 영역 -->
+        <main class="flex-1 overflow-y-auto hide-scrollbar p-5 relative -top-4">
+            
+            <!-- 탭 1: 개인 맞춤 운세 -->
+            <div id="tab1" class="tab-content active">
+                <div class="glass-panel p-6 rounded-2xl shadow-sm mb-6">
+                    <h2 class="text-lg font-bold text-gray-800 mb-2">오늘의 사주 명리학</h2>
+                    <p class="text-sm text-gray-500 mb-4">당신의 생년월일을 기반으로 분석합니다.</p>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">이름</label>
+                            <input type="text" value="홍길동" class="w-full p-2 border-b border-gray-300 bg-transparent focus:outline-none focus:border-teal-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">생년월일</label>
+                            <div class="flex gap-2">
+                                <input type="number" value="1995" class="w-1/3 p-2 border-b border-gray-300 bg-transparent text-center">
+                                <input type="number" value="05" class="w-1/3 p-2 border-b border-gray-300 bg-transparent text-center">
+                                <input type="number" value="20" class="w-1/3 p-2 border-b border-gray-300 bg-transparent text-center">
+                            </div>
+                        </div>
+                        <button onclick="showResult('사주')" class="w-full mt-4 bg-gray-800 text-white py-3 rounded-xl hover:bg-gray-700 transition shadow-lg">
+                            운세 확인하기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 띠별 운세 카드 -->
+                <div class="glass-panel p-5 rounded-2xl shadow-sm flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-gray-800">나의 띠 운세</h3>
+                        <p class="text-xs text-gray-500 mt-1">오늘은 귀인을 만날 수 있습니다.</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center text-2xl">
+                        🐯
+                    </div>
+                </div>
+            </div>
+
+            <!-- 탭 2: 실시간 감정-컨텍스트 운세 -->
+            <div id="tab2" class="tab-content">
+                <div class="text-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">현재 기분은 어떠신가요?</h2>
+                    <p class="text-sm text-gray-500 mt-2">감정에 따라 처방전을 내려드립니다.</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <button onclick="selectEmotion('답답함')" class="p-4 bg-white rounded-2xl shadow-sm hover:shadow-md transition text-center border border-transparent hover:border-teal-300">
+                        <div class="text-4xl mb-2">😤</div>
+                        <div class="font-medium text-gray-700">답답함</div>
+                    </button>
+                    <button onclick="selectEmotion('우울함')" class="p-4 bg-white rounded-2xl shadow-sm hover:shadow-md transition text-center border border-transparent hover:border-blue-300">
+                        <div class="text-4xl mb-2">💧</div>
+                        <div class="font-medium text-gray-700">우울함</div>
+                    </button>
+                    <button onclick="selectEmotion('설렘')" class="p-4 bg-white rounded-2xl shadow-sm hover:shadow-md transition text-center border border-transparent hover:border-pink-300">
+                        <div class="text-4xl mb-2">🌸</div>
+                        <div class="font-medium text-gray-700">설렘</div>
+                    </button>
+                    <button onclick="selectEmotion('불안함')" class="p-4 bg-white rounded-2xl shadow-sm hover:shadow-md transition text-center border border-transparent hover:border-purple-300">
+                        <div class="text-4xl mb-2">💭</div>
+                        <div class="font-medium text-gray-700">불안함</div>
+                    </button>
+                </div>
+
+                <div id="emotionResult" class="hidden glass-panel p-6 rounded-2xl border-l-4 border-teal-500">
+                    <h3 class="font-bold text-teal-700 mb-1">🌿 마음 처방전</h3>
+                    <p class="text-sm text-gray-600 leading-relaxed">
+                        잠시 하던 일을 멈추고 창밖을 바라보세요. 
+                        동쪽에서 불어오는 바람이 당신의 머리를 맑게 해줄 것입니다.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 탭 3: 멀티미디어 연동 운세 -->
+            <div id="tab3" class="tab-content">
+                <div class="glass-panel p-0 rounded-2xl shadow-sm overflow-hidden mb-6">
+                    <div class="h-40 bg-gray-800 flex items-center justify-center relative">
+                        <!-- 가상의 비디오/이미지 썸네일 -->
+                        <img src="/api/placeholder/400/320" alt="Meditation" class="absolute w-full h-full object-cover opacity-60">
+                        <button class="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white border border-white/50 hover:scale-110 transition z-10">
+                            <i class="fas fa-play ml-1"></i>
+                        </button>
+                    </div>
+                    <div class="p-5">
+                        <span class="inline-block px-2 py-1 bg-purple-100 text-purple-600 text-xs font-bold rounded mb-2">Lucky Sound</span>
+                        <h3 class="font-bold text-gray-800">재물운을 부르는 빗소리</h3>
+                        <p class="text-xs text-gray-500 mt-2">이 소리를 3분간 들으며 명상하세요.</p>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-5 rounded-2xl shadow-sm flex items-center gap-4">
+                    <div class="w-16 h-16 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-500 text-2xl">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800">행운의 부적 배경화면</h3>
+                        <button class="text-xs text-teal-600 font-bold mt-1">다운로드 받기 <i class="fas fa-arrow-right ml-1"></i></button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- 하단 네비게이션 (3가지 기능 메뉴) -->
+        <nav class="bg-white border-t border-gray-100 px-6 py-3 pb-6 rounded-t-[20px] shadow-[0_-5px_20px_rgba(0,0,0,0.03)]">
+            <ul class="flex justify-between items-center">
+                <li class="flex-1">
+                    <button onclick="switchTab('tab1', this)" class="nav-btn w-full flex flex-col items-center gap-1 text-teal-600 transition">
+                        <i class="fas fa-user-astronaut text-xl mb-1"></i>
+                        <span class="text-[10px] font-medium">개인맞춤</span>
+                    </button>
+                </li>
+                <li class="flex-1">
+                    <button onclick="switchTab('tab2', this)" class="nav-btn w-full flex flex-col items-center gap-1 text-gray-400 hover:text-teal-500 transition">
+                        <i class="fas fa-heart-pulse text-xl mb-1"></i>
+                        <span class="text-[10px] font-medium">감정/상황</span>
+                    </button>
+                </li>
+                <li class="flex-1">
+                    <button onclick="switchTab('tab3', this)" class="nav-btn w-full flex flex-col items-center gap-1 text-gray-400 hover:text-teal-500 transition">
+                        <i class="fas fa-photo-video text-xl mb-1"></i>
+                        <span class="text-[10px] font-medium">멀티미디어</span>
+                    </button>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- 결과 모달 (숨김 상태) -->
+        <div id="resultModal" class="hidden absolute inset-0 bg-black/60 z-50 flex items-center justify-center p-6 backdrop-blur-sm">
+            <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl transform transition-all scale-100 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-teal-400 to-yellow-300"></div>
+                <div class="text-center mt-4">
+                    <div class="w-16 h-16 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl text-teal-600">
+                        🔮
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">운세 분석 완료</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed mb-6">
+                        동쪽에서 귀인이 찾아옵니다.<br>
+                        준비했던 일이 결실을 맺을 시기이니<br>
+                        주저하지 말고 나아가세요.
+                    </p>
+                    <button onclick="closeModal()" class="w-full bg-teal-600 text-white py-3 rounded-xl font-bold hover:bg-teal-700 transition">확인</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 탭 전환 기능
+        function switchTab(tabId, btnElement) {
+            // 모든 탭 내용 숨기기
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            // 선택한 탭 보이기
+            document.getElementById(tabId).classList.add('active');
+
+            // 네비게이션 버튼 스타일 초기화
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-teal-600');
+                btn.classList.add('text-gray-400');
+            });
+            // 선택한 버튼 강조
+            btnElement.classList.remove('text-gray-400');
+            btnElement.classList.add('text-teal-600');
+        }
+
+        // 운세 결과 모달 표시
+        function showResult(type) {
+            const modal = document.getElementById('resultModal');
+            modal.classList.remove('hidden');
+            // 실제 구현 시에는 type에 따라 내용을 동적으로 변경
+        }
+
+        // 모달 닫기
+        function closeModal() {
+            document.getElementById('resultModal').classList.add('hidden');
+        }
+
+        // 감정 선택 시 효과
+        function selectEmotion(emotion) {
+            const resultBox = document.getElementById('emotionResult');
+            resultBox.classList.remove('hidden');
+            resultBox.classList.add('animate-pulse');
+            setTimeout(() => {
+                resultBox.classList.remove('animate-pulse');
+            }, 1000);
+            
+            // 간단한 텍스트 변경 (예시)
+            const textMap = {
+                '답답함': '탁 트인 공간이나 높은 곳으로 이동해보세요. 시야가 넓어지면 운도 트입니다.',
+                '우울함': '따뜻한 차 한 잔과 함께 밝은 조명 아래 있어보세요. 양기가 필요합니다.',
+                '설렘': '지금의 긍정적인 에너지를 기록해두세요. 새로운 시작에 아주 좋은 기운입니다.',
+                '불안함': '깊게 심호흡을 3번 하세요. 지금의 걱정은 지나가는 소나기일 뿐입니다.'
+            };
+            
+            if(textMap[emotion]) {
+                resultBox.querySelector('p').innerText = textMap[emotion];
+            }
+        }
+    </script>
+</body>
+</html>
